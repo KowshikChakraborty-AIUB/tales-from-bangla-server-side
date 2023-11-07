@@ -11,7 +11,7 @@ app.use(express.json());
 
 //MongoDB database
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.hxgse1v.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -62,15 +62,35 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/services/:email', async (req, res) => {
-            let params = {};
-            if (req.params.email) {
-                params = {
-                    service_provider_email: req.params.email
+        // app.get('/services/:email', async (req, res) => {
+        //     let params = {};
+        //     if (req.params.email) {
+        //         params = {
+        //             service_provider_email: req.params.email
+        //         }
+        //     }
+        //     const cursor = servicesCollection.find(params);
+        //     const result = await cursor.toArray();
+        //     res.send(result);
+        // })
+
+        app.get('/services/myServices', async (req, res) => {
+            let query = {};
+            if (req.query.email) {
+                query = {
+                    service_provider_email: req.query.email
                 }
             }
-            const cursor = servicesCollection.find(params);
+            const cursor = servicesCollection.find(query);
             const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        app.get('/services/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id);
+            const query = { _id: new ObjectId(id) };
+            const result = await servicesCollection.findOne(query);
             res.send(result);
         })
 
