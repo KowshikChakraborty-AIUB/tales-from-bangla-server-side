@@ -56,6 +56,24 @@ async function run() {
             res.send(result);
         })
 
+        app.post('/services', async (req, res) => {
+            const addServices = req.body;
+            const result = await servicesCollection.insertOne(addServices);
+            res.send(result);
+        })
+
+        app.get('/services/:email', async (req, res) => {
+            let params = {};
+            if (req.params.email) {
+                params = {
+                    service_provider_email: req.params.email
+                }
+            }
+            const cursor = servicesCollection.find(params);
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
