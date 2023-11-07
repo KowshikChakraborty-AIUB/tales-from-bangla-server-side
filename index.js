@@ -29,11 +29,18 @@ async function run() {
         await client.connect();
 
         const servicesCollection = client.db('talesFromBanglaDB').collection('services');
+        const bookingsCollection = client.db('talesFromBanglaDB').collection('bookings');
 
 
         app.get('/services', async(req, res) => {
             const cursor = servicesCollection.find();
             const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        app.post('/bookings', async(req, res) => {
+            const bookings = req.body;
+            const result = await bookingsCollection.insertOne(bookings);
             res.send(result);
         })
 
