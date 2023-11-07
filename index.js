@@ -32,15 +32,27 @@ async function run() {
         const bookingsCollection = client.db('talesFromBanglaDB').collection('bookings');
 
 
-        app.get('/services', async(req, res) => {
+        app.get('/services', async (req, res) => {
             const cursor = servicesCollection.find();
             const result = await cursor.toArray();
             res.send(result);
         })
 
-        app.post('/bookings', async(req, res) => {
+        app.post('/bookings', async (req, res) => {
             const bookings = req.body;
             const result = await bookingsCollection.insertOne(bookings);
+            res.send(result);
+        })
+
+        app.get('/bookings', async (req, res) => {
+            let query = {};
+            if (req.query.email) {
+                query = {
+                    userEmail: req.query.email
+                }
+            }
+            const cursor = bookingsCollection.find(query);
+            const result = await cursor.toArray();
             res.send(result);
         })
 
