@@ -94,6 +94,28 @@ async function run() {
             res.send(result);
         })
 
+        app.put('/services/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updateServices = req.body;
+            const services = {
+                $set: {
+                    service_name: updateServices.service_name,
+                    service_image: updateServices.service_image,
+                    service_provider_name: updateServices.service_provider_name,
+                    service_provider_email: updateServices.service_provider_email,
+                    service_provider_image: updateServices.service_provider_image,
+                    service_price: updateServices.service_price,
+                    service_area: updateServices.service_area,
+                    service_description: updateServices.service_description
+                }
+            }
+
+            const result = await servicesCollection.updateOne(filter, services, options);
+            res.send(result);
+        })
+
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
