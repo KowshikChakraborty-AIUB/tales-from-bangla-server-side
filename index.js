@@ -41,12 +41,12 @@ const logger = (req, res, next) => {
 
 const verifyToken = (req, res, next) => {
     const token = req.cookies.token;
-    if(!token){
-        return res.status(401).send({message: 'unauthorized access'});
+    if (!token) {
+        return res.status(401).send({ message: 'unauthorized access' });
     }
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (error, decode) => {
-        if(error){
-            return res.status(401).send({message: 'unauthorized access'});
+        if (error) {
+            return res.status(401).send({ message: 'unauthorized access' });
         }
         req.user = decode;
         next();
@@ -61,25 +61,25 @@ async function run() {
         const servicesCollection = client.db('talesFromBanglaDB').collection('services');
         const bookingsCollection = client.db('talesFromBanglaDB').collection('bookings');
 
-        app.post('/jwt', async(req, res) => {
+        app.post('/jwt', async (req, res) => {
 
             const user = req.body;
-            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {expiresIn: '1h'});
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
             res
-            .cookie('token', token, {
-                httpOnly: true,
-                secure: true,
-                sameSite: 'none'
-            })
-            .send({success: true});
+                .cookie('token', token, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'none'
+                })
+                .send({ success: true });
 
         })
 
-        app.post('/logOut', async(req, res) => {
+        app.post('/logOut', async (req, res) => {
             const user = req.body;
             res
-            .clearCookie('token', {maxAge: 0})
-            .send({success: true})
+                .clearCookie('token', { maxAge: 0 })
+                .send({ success: true })
         })
 
         app.get('/services', async (req, res) => {
@@ -95,8 +95,8 @@ async function run() {
         })
 
         app.get('/bookings', logger, verifyToken, async (req, res) => {
-            if(req.user.email !== req.query.email){
-                return res.status(403).send({message: 'forbidden access'});
+            if (req.user.email !== req.query.email) {
+                return res.status(403).send({ message: 'forbidden access' });
             }
             let query = {};
             if (req.query.email) {
@@ -127,7 +127,10 @@ async function run() {
         //     res.send(result);
         // })
 
-        app.get('/services/myServices', async (req, res) => {
+        app.get('/services/myServices', logger, verifyToken, async (req, res) => {
+            if (req.user.email !== req.query.email) {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
             let query = {};
             if (req.query.email) {
                 query = {
@@ -139,7 +142,10 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/services/:id', async (req, res) => {
+        app.get('/services/:id', logger, verifyToken, async (req, res) => {
+            if (req.user.email !== req.query.email) {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
             const id = req.params.id;
             console.log(id);
             const query = { _id: new ObjectId(id) };
