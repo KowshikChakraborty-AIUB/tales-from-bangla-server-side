@@ -9,7 +9,7 @@ require('dotenv').config();
 //middleware
 app.use(cors({
     origin: [
-        'http://localhost:5173'
+        'https://tales-from-bangla.surge.sh'
     ],
     credentials: true
 }));
@@ -56,7 +56,7 @@ const verifyToken = (req, res, next) => {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
 
         const servicesCollection = client.db('talesFromBanglaDB').collection('services');
         const bookingsCollection = client.db('talesFromBanglaDB').collection('bookings');
@@ -68,8 +68,8 @@ async function run() {
             res
                 .cookie('token', token, {
                     httpOnly: true,
-                    secure: true,
-                    sameSite: 'none'
+                    secure: process.env.NODE_ENV === "production" ? true : false,
+                    sameSite: process.env.NODE_ENV === "production" ? 'none' : 'strict'
                 })
                 .send({ success: true });
 
@@ -78,7 +78,11 @@ async function run() {
         app.post('/logOut', async (req, res) => {
             const user = req.body;
             res
-                .clearCookie('token', { maxAge: 0 })
+                .clearCookie('token', {
+                    maxAge: 0,
+                    secure: process.env.NODE_ENV === "production" ? true : false,
+                    sameSite: process.env.NODE_ENV === "production" ? 'none' : 'strict'
+                })
                 .send({ success: true })
         })
 
