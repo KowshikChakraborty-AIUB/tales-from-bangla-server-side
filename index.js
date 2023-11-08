@@ -146,10 +146,7 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/services/:id', logger, verifyToken, async (req, res) => {
-            if (req.user.email !== req.query.email) {
-                return res.status(403).send({ message: 'forbidden access' });
-            }
+        app.get('/services/:id', async (req, res) => {
             const id = req.params.id;
             console.log(id);
             const query = { _id: new ObjectId(id) };
